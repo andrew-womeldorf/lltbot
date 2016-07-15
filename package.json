@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/andrew-womeldorf/lltbot/issues"
   },
-  "homepage": "https://github.com/andrew-womeldorf/lltbot#readme"
+  "homepage": "https://github.com/andrew-womeldorf/lltbot#readme",
+  "dependencies": {
+    "botkit": "^0.2.2"
+  }
 }
