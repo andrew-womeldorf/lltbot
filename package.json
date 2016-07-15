@@ -1,0 +1,19 @@
+{
+  "name": "lltbot",
+  "version": "1.0.0",
+  "description": "Bot for LLT Group",
+  "main": "lltbot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrew-womeldorf/lltbot.git"
+  },
+  "author": "Andrew Womeldorf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrew-womeldorf/lltbot/issues"
+  },
+  "homepage": "https://github.com/andrew-womeldorf/lltbot#readme"
+}
