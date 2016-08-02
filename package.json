@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/andrew-womeldorf/lltbot#readme",
   "dependencies": {
-    "botkit": "^0.2.2"
+    "botkit": "^0.2.2",
+    "spotify-web-api-node": "^2.3.5"
   }
 }

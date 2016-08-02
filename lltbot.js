@@ -8,6 +8,7 @@
     _Conversation
     _Hears_Bot
     _Shutdown
+    _Leave_Channel
     _Feature
 
   ░░░░░░░░░░░░░░░░░░░░░░░░*/
@@ -18,8 +19,9 @@
 // TODO: Integrate slash commands
 // TODO: figure out storage, including long term for if the bot shuts down.  I want to keep info even if bot is reset
 // TODO: Slack buttons
-// TODO: oAuth?
 // TODO: Integrate the LLT Spotify account with the bot - https://github.com/sosedoff/musicbot
+// TODO: ALSO (Spotify) - as the playlist is playing, the bot should update the channel with the current song.
+// TODO: Integrate twitter feed into a channel with updates from Gitlab
 
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _Setup
@@ -43,18 +45,22 @@ controller.spawn({ // Validate token, start RTM, throw any errors
     }
 });
 
-// TODO: Haven't integrated slash commands.  Just testing right now
-controller.setupWebserver(3000, function(err, webserver) { // Web Server for slash commands
-    controller.createWebhookEndpoints(webserver);
-});
 
 /****************
 testing zone
 ****************/
-controller.on('slash_command', function(bot, message){
-    bot.replyPrivate(message, 'Message');
+// Haven't integrated slash commands.  Just testing right now
+var webServerPort = process.env.PORT || 3000;
+controller.setupWebserver(webServerPort, function(err, webserver) { // Web Server for slash commands(?)
+    controller.createWebhookEndpoints(webserver);
 });
 
+controller.on('slash_command', function(bot, message){
+    bot.replyPrivate(message, 'I see you sent a slash command');
+});
+controller.on('message_received', function(bot, message){
+    console.log(message);
+})
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _PJ_Emoji
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
@@ -76,7 +82,7 @@ controller.on('ambient,message_received,direct_message,mention', function(bot, m
             bot.api.reactions.add({ //:pj:
                 timestamp: message.ts,
                 channel: message.channel,
-                name: 'pj',
+                name: 'pjj',
             }, function(err, res){
                 if (err) {
                     bot.botkit.log('Failed to add pj emoji reaction :/', err);
@@ -88,7 +94,7 @@ controller.on('ambient,message_received,direct_message,mention', function(bot, m
 controller.on('ambient', function(bot, message){ //if the real PeterJohn posts anything to the general channel or the GotLunch channel
     // console.log('NEW MESSAGE');
     console.log(message);
-    if (message.user == 'U079SK0TG' && (message.channel == 'C02T1HWQZ' || message.channel == 'G0E1HF5BR')) {
+    if (message.user == 'U079SK0TG' && (message.channel == 'C02T1HWQZ' || message.channel == 'G0E1HF5BR' || message.channel == 'G07ETKLJY')) {
         bot.api.reactions.add({ //:peterjohn:
             timestamp: message.ts,
             channel: message.channel,
@@ -101,7 +107,7 @@ controller.on('ambient', function(bot, message){ //if the real PeterJohn posts a
         bot.api.reactions.add({ //:pj:
             timestamp: message.ts,
             channel: message.channel,
-            name: 'pj',
+            name: 'pjj',
         }, function(err, res){
             if (err) {
                 bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
@@ -120,8 +126,8 @@ controller.on('direct_message', function(bot, message){ // general message start
 });
 catchAll = function(response, convo){
     convo.say('Hello');
-    convo.say("I don't have much to say");
-    convo.say("Sorry. Try again soon.  Someone is working on me");
+    // convo.say("I don't have much to say");
+    // convo.say("Sorry. Try again soon.  Someone is working on me");
     convo.next();
 }
 
@@ -181,6 +187,33 @@ controller.hears('shutdown', 'direct_message,direct_mention,mention', function(b
             }
         ]);
     });
+});
+
+//▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+// _Leave_Channel
+//▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+// running into an issue - it seems that bots can not leave or kick from channels or groups.
+// not sure how to just format the text the way that Slack does it either, so as to "fakeit"
+var start_timer, channel;
+var counter = 0;
+controller.on('direct_mention,mention,ambient', function(bot, message){
+    if (!start_timer) {
+        start_timer = message.ts;
+        channel = message.channel;
+        counter = 0;
+    }
+    if (message.channel === channel) {
+        counter++;
+        var diff = message.ts - start_timer;
+        if (counter >= 8 && diff < 300) {
+            console.log('yo');
+        }
+        console.log(channel);
+        bot.api.groups.kick([channel, 'U079SK0TG'], function(err, res){
+            console.log(err);
+            console.log(res);
+        });
+    }
 });
 
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
