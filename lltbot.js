@@ -16,11 +16,8 @@
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _TODO
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-// TODO: Integrate slash commands
 // TODO: figure out storage, including long term for if the bot shuts down.  I want to keep info even if bot is reset
 // TODO: Slack buttons
-// TODO: Integrate the LLT Spotify account with the bot - https://github.com/sosedoff/musicbot
-// TODO: ALSO (Spotify) - as the playlist is playing, the bot should update the channel with the current song.
 // TODO: Integrate twitter feed into a channel with updates from Gitlab
 
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
