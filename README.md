@@ -33,3 +33,13 @@ Get list of upcoming songs++++
 In Progress++
 
 Future++++
+
+
+
+| Features | Future |
+| --- | --- |
+| Add tracks to playlist++ | In Progress |
+| Drop tracks from playlist++++ | Future |
+| Get current song info++++ | Future |
+| Get previous song info++++ | Future |
+| Get list of upcoming songs++++ | Future |
