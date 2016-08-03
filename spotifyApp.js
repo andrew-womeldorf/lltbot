@@ -79,7 +79,7 @@ controller.setupWebserver(port, function(err, webserver){ // webserver = express
                 spotifyApi.setRefreshToken(data.body['refresh_token']);
                 // webserver.emit(eventConfig.CODERECEIVED);
                 console.log('webserver is working!!!');
-                res.redirect('http://localhost:8888/login');
+                // res.redirect(localConfig.slackapp.loginUri);
                 res.send('Webserver is Working!');
             }, function(err){
                 console.log('Something went wrong!', err);
