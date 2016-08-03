@@ -1,2 +1,4 @@
 node_modules/
 run_info
+local-config.js
+db_slackbutton_slash_command/

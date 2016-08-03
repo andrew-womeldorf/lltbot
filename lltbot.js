@@ -27,8 +27,11 @@
 // _Setup
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 var Botkit = require('botkit');
+var localConfig = require('./local-config').lltbot;
 
-if (!process.env.token) { // Check that there is a token when called (not validated here)
+var token = localConfig.token || process.env.token;
+
+if (!token) { // Check that there is a token when called (not validated here)
     console.log('Error: Specify token in environment');
     process.exit(1);
 }
@@ -38,7 +41,7 @@ var controller = Botkit.slackbot({ // Create the controller, turn on debugging
 });
 
 controller.spawn({ // Validate token, start RTM, throw any errors
-    token: process.env.token
+    token: token
 }).startRTM(function(err){
     if (err) {
         throw new Error(err);
