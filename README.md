@@ -10,13 +10,13 @@ Work-from-home Checkin process
 Currently experimental - primarily used at this point for inside office jokes.
 
 #spotifyApp.js
-Integrate Spotify Web API with Slack\n
-Features:\n
-Add tracks to playlist**\n
-Drop tracks from playlist****\n
-Get current song info****\n
-Get previous song info****\n
-Get list of upcoming songs****\n
-\n
-In Progress**\n
-Future****
+Integrate Spotify Web API with Slack
+Features:
+Add tracks to playlist++
+Drop tracks from playlist++++
+Get current song info++++
+Get previous song info++++
+Get list of upcoming songs++++
+
+In Progress++
+Future++++
