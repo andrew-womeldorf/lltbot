@@ -2,12 +2,10 @@
 Bot for LLT Group
 
 #TODO
-Gitlab Twitter feed into slack channel
-
-Improve storage integration
-
-Work-from-home Checkin process
-
+| Feature | Progress |
+| --- | --- |
+| @gitlabstatus twitter feed in slack channel | Future |
+| Work-from-home checkin process | Future |
 
 #lltbot.js
 Currently experimental - primarily used at this point for inside office jokes.
