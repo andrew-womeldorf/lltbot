@@ -9,6 +9,7 @@ Bot for LLT Group
 | @gitlabstatus twitter feed in slack channel | Future |
 | Work-from-home checkin process | Future |
 | Installation Guide | Future |
+| Multiple Playlist Handling | Future |
 
 #lltbot.js
 Currently experimental - primarily used at this point for inside office jokes.
