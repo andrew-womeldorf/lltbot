@@ -1,4 +1,6 @@
 # LLTBot
+Work in Progress
+
 Bot for LLT Group
 
 #TODO
@@ -6,6 +8,7 @@ Bot for LLT Group
 | --- | --- |
 | @gitlabstatus twitter feed in slack channel | Future |
 | Work-from-home checkin process | Future |
+| Installation Guide | Future |
 
 #lltbot.js
 Currently experimental - primarily used at this point for inside office jokes.
