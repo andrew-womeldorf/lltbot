@@ -19,6 +19,7 @@
   "dependencies": {
     "botkit": "^0.2.2",
     "express": "^4.14.0",
+    "jfs": "^0.2.6",
     "spotify-web-api-node": "^2.3.5"
   }
 }

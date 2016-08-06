@@ -1,8 +1,9 @@
 var Botkit = require('botkit');
 var SpotifyWebApi = require('spotify-web-api-node');
-var slashController = require('./lib/slashController');
+var slashController = require('./lib/spotify/slashController');
 var eventConfig = require('./config.js');
 var localConfig = require('./local-config'); // object with my runtime info. git ignored.
+var storage = require('./storage');
 var port = process.env.port || 8888;
 
 
@@ -20,7 +21,8 @@ if (!slackClientId || !slackClientSecret || !slackVerifyToken) {
 }
 
 var controller = Botkit.slackbot({
-    json_file_store: './db_slackbutton_slash_command/',
+    // json_file_store: './db_slackbutton_slash_command/',
+    storage: storage({path: './db_lltbot'}),
 }).configureSlackApp(
     {
         clientId: slackClientId,
