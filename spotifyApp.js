@@ -4,15 +4,15 @@ var slashController = require('./lib/spotify/slashController');
 var eventConfig = require('./config.js');
 var localConfig = require('./local-config'); // object with my runtime info. git ignored.
 var storage = require('./storage');
+storage = storage({path: './db_lltbot'});
 var port = process.env.port || 8888;
-
 
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _slackApp Setup
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-var slackClientId = localConfig.slackapp.clientId || process.env.slackClientId,
-    slackClientSecret = localConfig.slackapp.clientSecret || process.env.slackClientSecret,
-    slackVerifyToken = localConfig.slackapp.verifyToken || process.env.slackVerifyToken,
+var slackClientId = process.env.slackClientId || localConfig.slackapp.clientId,
+    slackClientSecret = process.env.slackClientSecret || localConfig.slackapp.clientSecret,
+    slackVerifyToken = process.env.slackVerifyToken || localConfig.slackapp.verifyToken,
     slackScopes = ['commands', 'incoming-webhook', 'bot']
 
 if (!slackClientId || !slackClientSecret || !slackVerifyToken) {
@@ -21,8 +21,7 @@ if (!slackClientId || !slackClientSecret || !slackVerifyToken) {
 }
 
 var controller = Botkit.slackbot({
-    // json_file_store: './db_slackbutton_slash_command/',
-    storage: storage({path: './db_lltbot'}),
+    storage: storage,
 }).configureSlackApp(
     {
         clientId: slackClientId,
@@ -46,35 +45,16 @@ controller.on('create_bot',function(bot,config) {
       if (!err) {
         trackBot(bot);
       }
-    //   bot.startPrivateConversation({user: config.createdBy},function(err,convo) {
-    //     if (err) {
-    //       console.log(err);
-    //     } else {
-    //       convo.say('I am a bot that has just joined your team');
-    //       convo.say('You must now /invite me to a channel so that I can be of use!');
-    //     }
-    //   });
     });
   }
 });
 
-// Handle events related to the websocket connection to Slack
-controller.on('rtm_open',function(bot) {
-  console.log('** The RTM api just connected!');
-});
-
-controller.on('rtm_close',function(bot) {
-  console.log('** The RTM api just closed');
-  // you may want to attempt to re-open
-});
-
-
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _spotify Setup
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-var spotifyClientId = localConfig.spotify.clientId || process.env.spotifyClientId,
-    spotifyClientSecret = localConfig.spotify.clientSecret || process.env.spotifyClientSecret,
-    spotifyRedirectUri = localConfig.spotify.redirectUri || process.env.spotifyRedirectUri,
+var spotifyClientId = process.env.spotifyClientId || localConfig.spotify.clientId,
+    spotifyClientSecret = process.env.spotifyClientSecret || localConfig.spotify.clientSecret,
+    spotifyRedirectUri = process.env.spotifyRedirectUri || localConfig.spotify.redirectUri,
     spotifyScopes = ['playlist-modify-public', 'playlist-modify-private'],
     spotifyState = 'any-state';
 
@@ -82,6 +62,12 @@ if (!spotifyClientId || !spotifyClientSecret || !spotifyRedirectUri) {
     console.log('Error: Specify clientId, clientSecret, and redirectUri in environment');
     process.exit(1);
 }
+
+storage.spotify.get(spotifyClientId, function(err, tokens){
+    if (err) return;
+    spotifyApi.setAccessToken(tokens.access_token);
+    spotifyApi.setRefreshToken(tokens.refresh_token);
+});
 
 var spotifyApi = new SpotifyWebApi({
     clientId : spotifyClientId,
@@ -115,14 +101,27 @@ controller.setupWebserver(port, function(err, webserver){ // webserver = express
             .then(function(data){
                 spotifyApi.setAccessToken(data.body['access_token']);
                 spotifyApi.setRefreshToken(data.body['refresh_token']);
-                // webserver.emit(eventConfig.CODERECEIVED);
+                var storeMe = { // This may be a poor storage method.  Will look deeper when start looking into multiple spotify accounts per team.
+                    id : spotifyApi._credentials.clientId,
+                    clientId : spotifyApi._credentials.clientId,
+                    clientSecret : spotifyApi._credentials.clientSecret,
+                    redirectUri : spotifyApi._credentials.redirectUri,
+                    access_token : data.body['access_token'],
+                    refresh_token : data.body['refresh_token']
+                }
+                storage.spotify.save(storeMe, function(err, id) {
+                    if (err) {
+                        console.log('An error occurred while saving to Spotify: ', err);
+                        res.status(500).send(err);
+                    } else {
+                        console.log('Saved Spotify tokens');
+                    }
+                });
                 console.log('webserver is working!!!');
-                // res.redirect(localConfig.slackapp.loginUri);
                 res.send('Webserver is Working!');
             }, function(err){
                 console.log('Something went wrong!', err);
             });
-        // res.send('Hello, and welcome to the callback page');
     });
 
 });

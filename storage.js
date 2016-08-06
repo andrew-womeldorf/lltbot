@@ -1,3 +1,5 @@
+// Replaces Botkit's simple_storage with custom storage, so we can add our own folders.
+
 var Store = require('jfs');
 
 module.exports = function(config) {
