@@ -20,7 +20,7 @@ Integrate Spotify Web API with Slack
 | Features | Progress |
 | --- | --- |
 | Multiple Playlist Handling | Future |
-| Store Spotify info | In Progress |
+| Store Spotify info | Complete |
 | Add tracks to playlist | In Progress |
 | Drop tracks from playlist | Complete |
 | Get current song info | Future |
