@@ -3,7 +3,7 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var slashController = require('./lib/spotify/slashController');
 var eventConfig = require('./config.js');
 var localConfig = require('./local-config'); // object with my runtime info. git ignored.
-var storage = require('./storage');
+var storage = require('./lib/storage');
 storage = storage({path: './db_lltbot'});
 var port = process.env.port || 8888;
 
@@ -63,18 +63,18 @@ if (!spotifyClientId || !spotifyClientSecret || !spotifyRedirectUri) {
     process.exit(1);
 }
 
-storage.spotify.get(spotifyClientId, function(err, tokens){
-    if (err) return;
-    spotifyApi.setAccessToken(tokens.access_token);
-    spotifyApi.setRefreshToken(tokens.refresh_token);
-});
-
 var spotifyApi = new SpotifyWebApi({
     clientId : spotifyClientId,
     clientSecret : spotifyClientSecret,
     redirectUri : spotifyRedirectUri
 });
 
+storage.spotify.get(spotifyClientId, function(err, tokens){
+    if (err) return;
+    spotifyApi.setAccessToken(tokens.access_token);
+    spotifyApi.setRefreshToken(tokens.refresh_token);
+});
+console.log(spotifyApi);
 var authorizeURL = spotifyApi.createAuthorizeURL(spotifyScopes, spotifyState);
 
 
