@@ -4,3 +4,4 @@ local-config.js
 db_*/
 slashbot.js
 spotify.js
+.save_pretty

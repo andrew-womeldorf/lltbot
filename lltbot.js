@@ -25,6 +25,9 @@
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 var Botkit = require('botkit');
 var localConfig = require('./local-config').lltbot;
+var storage = require('./lib/storage');
+storage = storage({path: './db_lltbot'});
+
 
 var token = localConfig.token || process.env.token;
 
@@ -34,7 +37,8 @@ if (!token) { // Check that there is a token when called (not validated here)
 }
 
 var controller = Botkit.slackbot({ // Create the controller, turn on debugging
-    debug: true
+    debug: true,
+    storage: storage
 });
 
 controller.spawn({ // Validate token, start RTM, throw any errors
@@ -49,52 +53,116 @@ controller.spawn({ // Validate token, start RTM, throw any errors
 /****************
 testing zone
 ****************/
-// Haven't integrated slash commands.  Just testing right now
-var webServerPort = process.env.PORT || 3000;
-controller.setupWebserver(webServerPort, function(err, webserver) { // Web Server for slash commands(?)
-    controller.createWebhookEndpoints(webserver);
+
+controller.on('ambient', function(bot, message){
+    if (message.channel === 'G1SMXBBLY') {
+        storage.channels.get(message.channel, function(err, data){
+            if (err) return;
+
+        });
+        message.id = message.channel;
+        storage.channels.save(message);
+    }
 });
 
-controller.on('slash_command', function(bot, message){
-    bot.replyPrivate(message, 'I see you sent a slash command');
-});
-controller.on('message_received', function(bot, message){
-    console.log(message);
-})
+/****************
+END testing zone
+****************/
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _PJ_Emoji
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 var peterjohn = new RegExp(/(:?P((e+[gjt]+\w*)|([gjy]\w*))\s?[gjy]*\w*:?)|((:?|\@?)p\s?j\w{2,}?:?)|((:?|\@?)pj:?)|(wh?e{2,}[gj]+)/ig);
+var randReact = [
+    'gran',
+    'nuke',
+    'pjj',
+    'womans_hat',
+    'pug',
+    'bowtie',
+    'hankey',
+    '',
+    'donkey',
+    'daschund',
+    'grumpycat',
+    'poolparty',
+    'facepalm',
+    'surprised',
+    'beard',
+    'kitten',
+    'lego',
+    'coffee',
+    'yoda',
+    'shaking',
+    'vader',
+    'thats-shitty',
+    'thefonz',
+    'trooper',
+    'nod',
+    'pika',
+    'squirrel',
+    'mage-dance',
+    'metal',
+    'good-fin-luck',
+    'henry',
+    'lalala',
+    'humping-monkey',
+    'chemicalx',
+    'dancing-taco',
+    'dancing-tomato',
+    'dancing-penguin',
+    'computer-rage',
+    'hitting-face-on-wall',
+    'dance-banana',
+    'aw-yeah'
+];
 controller.on('ambient,message_received,direct_message,mention', function(bot, message){//Any variation of peterjohn being used (see RegExp)
+    var reactIndex = Math.floor(Math.random() * randReact.length);
+    var shouldIReact = Math.floor(Math.random() * 4);
     if (peterjohn.test(message.text)) {
-        var timeOut = Math.random() * (8000-750) + 750;
-        console.log(timeOut);
-        setTimeout(function(){
-            bot.api.reactions.add({ //:peterjohn:
-                timestamp: message.ts,
-                channel: message.channel,
-                name: 'peterjohn',
-            }, function(err, res){
-                if (err) {
-                    bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
-                }
-            });
-            bot.api.reactions.add({ //:pj:
-                timestamp: message.ts,
-                channel: message.channel,
-                name: 'pjj',
-            }, function(err, res){
-                if (err) {
-                    bot.botkit.log('Failed to add pj emoji reaction :/', err);
-                }
-            });
-        }, timeOut);
+        if (shouldIReact === 1) {
+            var timeOut = Math.random() * (20000-750) + 750;
+            setTimeout(function(){
+                bot.api.reactions.add({ //:peterjohn:
+                    timestamp: message.ts,
+                    channel: message.channel,
+                    name: 'peterjohn',
+                }, function(err, res){
+                    if (err) {
+                        bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
+                    }
+                });
+                bot.api.reactions.add({ //:pj:
+                    timestamp: message.ts,
+                    channel: message.channel,
+                    name: randReact[reactIndex],
+                }, function(err, res){
+                    if (err) {
+                        bot.botkit.log('Failed to add pj emoji reaction :/', err);
+                    }
+                });
+            }, timeOut);
+        } else {
+            var timeOut = Math.random() * (20000-750) + 750;
+            setTimeout(function(){
+                bot.api.reactions.add({ //:pj:
+                    timestamp: message.ts,
+                    channel: message.channel,
+                    name: randReact[reactIndex],
+                }, function(err, res){
+                    if (err) {
+                        bot.botkit.log('Failed to add pj emoji reaction :/', err);
+                    }
+                });
+            }, timeOut);
+        }
     }
 })
 controller.on('ambient', function(bot, message){ //if the real PeterJohn posts anything to the general channel or the GotLunch channel
     // console.log('NEW MESSAGE');
-    console.log(message);
-    if (message.user == 'U079SK0TG' && (message.channel == 'C02T1HWQZ' || message.channel == 'G0E1HF5BR' || message.channel == 'G07ETKLJY')) {
+    // console.log(message);
+    var reactIndex = Math.floor(Math.random() * randReact.length);
+    var shouldIReact = Math.floor(Math.random() * 4);
+    if (message.user == 'U079SK0TG' && (message.channel == 'C02T1HWQZ' || message.channel == 'G0E1HF5BR' || message.channel == 'G07ETKLJY') && shouldIReact === 1) {
         bot.api.reactions.add({ //:peterjohn:
             timestamp: message.ts,
             channel: message.channel,
@@ -107,7 +175,17 @@ controller.on('ambient', function(bot, message){ //if the real PeterJohn posts a
         bot.api.reactions.add({ //:pj:
             timestamp: message.ts,
             channel: message.channel,
-            name: 'pjj',
+            name: randReact[reactIndex],
+        }, function(err, res){
+            if (err) {
+                bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
+            }
+        });
+    } else if (message.user == 'U02T7T766' && message.channel == 'C02T1HWQZ' && shouldIReact === 1) {
+        bot.api.reactions.add({
+            timestamp: message.ts,
+            channel: message.channel,
+            name: randReact[reactIndex],
         }, function(err, res){
             if (err) {
                 bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
@@ -116,12 +194,39 @@ controller.on('ambient', function(bot, message){ //if the real PeterJohn posts a
     }
 });
 
+controller.on('ambient', function(bot, message){ //if the real PeterJohn posts anything to the general channel or the GotLunch channel
+    // console.log('NEW MESSAGE');
+    // console.log(message);
+    var reactIndex = Math.floor(Math.random() * randReact.length);
+    var shouldIReact = Math.floor(Math.random() * 4);
+    if (message.user == 'U0A0F403T' && message.channel == 'G07EUCVM0') {
+        bot.api.reactions.add({ //:peterjohn:
+            timestamp: message.ts,
+            channel: message.channel,
+            name: 'no_entry_sign',
+        }, function(err, res){
+            if (err) {
+                bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
+            }
+        });
+        bot.api.reactions.add({ //:pj:
+            timestamp: message.ts,
+            channel: message.channel,
+            name: 'ghost',
+        }, function(err, res){
+            if (err) {
+                bot.botkit.log('Failed to add peterjohn emoji reaction :/', err);
+            }
+        });
+    } 
+});
+
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 // _Conversation
 //▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 controller.on('direct_message', function(bot, message){ // general message started
-    console.log(bot);
-    console.log(message);
+    // console.log(bot);
+    // console.log(message);
     bot.startConversation(message, catchAll);
 });
 catchAll = function(response, convo){
@@ -187,33 +292,6 @@ controller.hears('shutdown', 'direct_message,direct_mention,mention', function(b
             }
         ]);
     });
-});
-
-//▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-// _Leave_Channel
-//▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-// running into an issue - it seems that bots can not leave or kick from channels or groups.
-// not sure how to just format the text the way that Slack does it either, so as to "fakeit"
-var start_timer, channel;
-var counter = 0;
-controller.on('direct_mention,mention,ambient', function(bot, message){
-    if (!start_timer) {
-        start_timer = message.ts;
-        channel = message.channel;
-        counter = 0;
-    }
-    if (message.channel === channel) {
-        counter++;
-        var diff = message.ts - start_timer;
-        if (counter >= 8 && diff < 300) {
-            console.log('yo');
-        }
-        console.log(channel);
-        bot.api.groups.kick([channel, 'U079SK0TG'], function(err, res){
-            console.log(err);
-            console.log(res);
-        });
-    }
 });
 
 //▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
